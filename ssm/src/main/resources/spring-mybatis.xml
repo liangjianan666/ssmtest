@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+<!--
+    <context:property-placeholder ignore-unresolvable="true" location="classpath:jdbc.properties"/>&lt;!&ndash;&ndash;&gt;
+-->
+
+    <!--配置数据源-->
+    <bean id="dataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource" >
+        <!--数据库驱动-->
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/ssm?characterEncoding=UTF-8" />
+        <!--<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/ssm?useUnicode=true&characterEncoding=UTF-8" />-->
+
+        <!--用户名密码-->
+        <property name="user" value="root" />
+        <!--密码-->
+        <property name="password" value="123456" />
+
+        <!--另有数据库其他设置未配置-->
+    </bean>
+
+    <!--配置session工厂-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
+        <!--本地mybatis配置-->
+        <!--<property name="configLocation" />-->
+
+        <!--mapper地址 -->
+        <property name="mapperLocations" value="classpath:com/lja/mapper/*.xml" />
+
+        <!--mybatis配置-->
+        <property name="configLocation" value="classpath:mybatis-config.xml"/>
+
+        <!-- 扫描model包 xml中parameterType就可以使用类名，不用写全路径 -->
+        <property name="typeAliasesPackage" value="com.lja.domain"/>
+    </bean>
+
+    <!--扫描mapper-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="com.lja.mapper"/>
+
+        <!-- 注入sqlSessionFactory -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+
+    <!-- (事务管理)transaction manager, use JtaTransactionManager for global tx -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource" />
+    </bean>
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
